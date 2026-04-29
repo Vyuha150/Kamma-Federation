@@ -31,6 +31,7 @@ export default function Footer() {
             <ul className="space-y-4 text-gray-500 text-sm">
               <li><a href="#vision" className="hover:text-white transition-colors">Our Vision</a></li>
               <li><Link to="/legacy" className="hover:text-white transition-colors">Our Golden Legacy</Link></li>
+              <li><Link to="/hall-of-fame" className="hover:text-white transition-colors">Hall of Fame</Link></li>
               <li><a href="#pillars" className="hover:text-white transition-colors">Pillars of Growth</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Free Membership</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Events & Workshops</a></li>

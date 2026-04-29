@@ -12,6 +12,7 @@ export default function Navbar({ onJoinClick }: { onJoinClick: () => void }) {
     { name: 'Clubs', href: '#clubs' },
     { name: 'Events', href: '#events' },
     { name: 'Legacy', href: '/legacy', isExternal: true },
+    { name: 'Hall of Fame', href: '/hall-of-fame', isExternal: true },
     { name: 'Join Us', href: '#join' },
   ];
 

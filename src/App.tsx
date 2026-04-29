@@ -9,6 +9,7 @@ import MembershipForm from './components/MembershipForm';
 import LoadingScreen from './components/LoadingScreen';
 import AdminPanel from './components/AdminPanel';
 import LegacyPage from './components/LegacyPage';
+import HallOfFame from './components/HallOfFame';
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/" element={<HomePage onJoinClick={() => setIsFormOpen(true)} />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/legacy" element={<LegacyPage />} />
+          <Route path="/hall-of-fame" element={<HallOfFame />} />
         </Routes>
         
         <AnimatePresence>

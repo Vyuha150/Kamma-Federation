@@ -121,7 +121,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                   <p className="text-gray-500 text-sm">Identity documentation for the Federation archives.</p>
                 </div>
                 <div className="space-y-6 mb-10">
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Full Name</label>
                       <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="Vikas Chowdary" />
@@ -135,7 +135,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Educational Institution</label>
                     <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="IIT Hyderabad / BITS Pilani / etc." />
                   </div>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Current Semester/Year</label>
                       <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors appearance-none">

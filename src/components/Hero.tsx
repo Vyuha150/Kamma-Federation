@@ -23,7 +23,7 @@ export default function Hero({ onJoinClick }: { onJoinClick: () => void }) {
               <span className="text-xs font-bold uppercase tracking-widest">Building Legacies Since 2024</span>
             </div>
             
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-sans font-black text-white leading-[0.9] tracking-tighter mb-8 uppercase">
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-sans font-black text-white leading-[0.9] tracking-tighter mb-8 uppercase">
               UNITY. <br />
               <span className="text-gray-500 italic font-medium">VISION.</span> <br />
               <span className="text-amber-500">AUTHORITY.</span>
@@ -38,29 +38,29 @@ export default function Hero({ onJoinClick }: { onJoinClick: () => void }) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onJoinClick}
-                className="bg-white text-black px-10 py-5 rounded-2xl font-black text-lg uppercase flex items-center justify-center space-x-3 shadow-2xl hover:bg-gray-100 transition-all"
+                className="bg-white text-black px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-black text-base sm:text-lg uppercase flex items-center justify-center space-x-3 shadow-2xl hover:bg-gray-100 transition-all"
               >
                 <span>Join Federation</span>
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
               
-              <button className="px-10 py-5 rounded-2xl font-bold text-lg uppercase text-white border border-white/20 hover:bg-white/5 transition-all">
+              <button className="px-6 sm:px-10 py-4 sm:py-5 rounded-2xl font-bold text-base sm:text-lg uppercase text-white border border-white/20 hover:bg-white/5 transition-all">
                 Explore Vision
               </button>
             </div>
 
-            <div className="mt-12 flex items-center space-x-8">
+            <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center sm:space-x-8 space-y-4 sm:space-y-0">
               <div className="flex -space-x-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-12 h-12 rounded-full border-2 border-black overflow-hidden bg-gray-800">
+                  <div key={i} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-black overflow-hidden bg-gray-800">
                     <img src={`https://i.pravatar.cc/150?u=${i}`} alt="Avatar" className="w-full h-full object-cover" />
                   </div>
                 ))}
-                <div className="w-12 h-12 rounded-full border-2 border-black bg-amber-500 flex items-center justify-center text-black font-bold text-sm">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-black bg-amber-500 flex items-center justify-center text-black font-bold text-xs sm:text-sm">
                   +5k
                 </div>
               </div>
-              <div>
+              <div className="text-center sm:text-left">
                 <p className="text-white font-bold">Growing Daily</p>
                 <p className="text-gray-500 text-sm">Student & Business Leaders</p>
               </div>

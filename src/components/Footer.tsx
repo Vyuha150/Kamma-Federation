@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -28,10 +29,15 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Quick Links</h4>
             <ul className="space-y-4 text-gray-500 text-sm">
-              <li><a href="#" className="hover:text-white transition-colors">Our Vision</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Pillars of Growth</a></li>
+              <li><a href="#vision" className="hover:text-white transition-colors">Our Vision</a></li>
+              <li><Link to="/legacy" className="hover:text-white transition-colors">Our Golden Legacy</Link></li>
+              <li><a href="#pillars" className="hover:text-white transition-colors">Pillars of Growth</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Free Membership</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Events & Workshops</a></li>
+              <li><a href="/admin" className="text-amber-500/50 hover:text-amber-500 transition-colors flex items-center space-x-2">
+                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+                <span>Federation Admin Hub</span>
+              </a></li>
             </ul>
           </div>
 

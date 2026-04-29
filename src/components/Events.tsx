@@ -32,7 +32,7 @@ export default function Events() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
           <div>
             <p className="text-amber-500 font-mono text-sm uppercase tracking-[0.3em] font-bold mb-4">Innovation & Growth</p>
-            <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter italic">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">
               Flagship <span className="text-gray-500">Events</span>
             </h2>
           </div>

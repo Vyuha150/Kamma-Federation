@@ -36,11 +36,11 @@ export default function Clubs({ onJoinClick }: { onJoinClick: () => void }) {
   return (
     <section id="clubs" className="py-32 bg-[#050505] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-24">
-          <h2 className="text-6xl md:text-7xl font-sans font-black text-white uppercase tracking-tighter mb-6 italic">
+        <div className="text-center mb-16 sm:mb-24">
+          <h2 className="text-4xl sm:text-6xl md:text-7xl font-sans font-black text-white uppercase tracking-tighter mb-6 italic">
             Elite <span className="text-amber-500">Clubs</span>
           </h2>
-          <p className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed">
+          <p className="text-gray-400 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed px-4">
             Membership is free for all students of the Kamma community who are ready to commit to the vision of unity and growth.
           </p>
         </div>

@@ -40,7 +40,7 @@ export default function InnovationHub({ onJoinClick }: { onJoinClick: () => void
             <Target className="w-6 h-6 mr-3" />
             <span className="text-xs font-black uppercase tracking-[0.2em]">Innovative Impact Systems</span>
           </div>
-          <h2 className="text-6xl md:text-8xl font-black text-white italic uppercase tracking-tighter leading-[0.85]">
+          <h2 className="text-5xl sm:text-7xl md:text-8xl font-black text-white italic uppercase tracking-tighter leading-[0.85]">
             Bridging <br />
             <span className="text-gray-500">The Future</span>
           </h2>
@@ -65,7 +65,7 @@ export default function InnovationHub({ onJoinClick }: { onJoinClick: () => void
           ))}
         </div>
 
-        <div className="mt-24 p-12 bg-zinc-900 border border-white/10 rounded-[3rem] text-white overflow-hidden relative group">
+        <div className="mt-12 sm:mt-24 p-6 sm:p-12 bg-zinc-900 border border-white/10 rounded-[2rem] sm:rounded-[3rem] text-white overflow-hidden relative group">
           <div className="absolute inset-0 opacity-20 transition-opacity group-hover:opacity-40">
             <img 
               src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop" 
@@ -80,15 +80,15 @@ export default function InnovationHub({ onJoinClick }: { onJoinClick: () => void
             <div className="text-amber-500 mb-6">
               <Target className="w-12 h-12" />
             </div>
-            <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic mb-6 leading-none text-white">
+            <h3 className="text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter italic mb-6 leading-none text-white">
               Apply for the <span className="text-amber-500">FOUNDER-60</span> Mentorship Cohort
             </h3>
-            <p className="text-gray-400 text-lg font-medium mb-10 leading-relaxed">
+            <p className="text-gray-400 text-base sm:text-lg font-medium mb-8 sm:mb-10 leading-relaxed">
               We are selecting 60 high-potential student entrepreneurs for a 12-month direct mentorship with the Federation's top-tier business tycoons.
             </p>
             <button 
               onClick={onJoinClick}
-              className="bg-amber-500 text-black px-10 py-5 rounded-2xl font-black text-lg uppercase tracking-wider hover:bg-amber-400 transition-colors shadow-2xl"
+              className="w-full sm:w-auto bg-amber-500 text-black px-10 py-5 rounded-2xl font-black text-lg uppercase tracking-wider hover:bg-amber-400 transition-colors shadow-2xl"
             >
               Initiate Application
             </button>

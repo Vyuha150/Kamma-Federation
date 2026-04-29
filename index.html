@@ -3,7 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unified Kamma Student Federation</title>
+    <link id="favicon" rel="icon" type="image/png" href="/input_file_0.png" />
+    <script>
+      (function() {
+        const favicon = document.getElementById('favicon');
+        const paths = ['/input_file_0.png', '/input_file_1.png', 'https://via.placeholder.com/32?text=UKSF'];
+        let current = 0;
+        
+        function tryNext() {
+          if (current >= paths.length - 1) return;
+          current++;
+          const img = new Image();
+          img.onload = () => { favicon.href = paths[current]; };
+          img.onerror = tryNext;
+          img.src = paths[current];
+        }
+
+        const img = new Image();
+        img.onerror = tryNext;
+        img.src = paths[current];
+      })();
+    </script>
+    <title>Unified Kamma Student Federation | UKSF</title>
   </head>
   <body>
     <div id="root"></div>

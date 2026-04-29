@@ -6,27 +6,57 @@ import Events from './components/Events';
 import InnovationHub from './components/InnovationHub';
 import Footer from './components/Footer';
 import MembershipForm from './components/MembershipForm';
-import { useState } from 'react';
+import LoadingScreen from './components/LoadingScreen';
+import AdminPanel from './components/AdminPanel';
+import LegacyPage from './components/LegacyPage';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+function HomePage({ onJoinClick }: { onJoinClick: () => void }) {
+  return (
+    <>
+      <Navbar onJoinClick={onJoinClick} />
+      <Hero onJoinClick={onJoinClick} />
+      <Features onJoinClick={onJoinClick} />
+      <InnovationHub onJoinClick={onJoinClick} />
+      <Clubs onJoinClick={onJoinClick} />
+      <Events />
+      <Footer />
+    </>
+  );
+}
 
 export default function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500); // 2.5 seconds loading experience
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <main className="bg-[#050505] selection:bg-amber-500 selection:text-black">
-      <Navbar onJoinClick={() => setIsFormOpen(true)} />
-      <Hero onJoinClick={() => setIsFormOpen(true)} />
-      <Features onJoinClick={() => setIsFormOpen(true)} />
-      <InnovationHub onJoinClick={() => setIsFormOpen(true)} />
-      <Clubs onJoinClick={() => setIsFormOpen(true)} />
-      <Events />
-      <Footer />
-      
-      <AnimatePresence>
-        {isFormOpen && (
-          <MembershipForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
-        )}
-      </AnimatePresence>
-    </main>
+    <Router>
+      <main className="bg-[#050505] selection:bg-amber-500 selection:text-black min-h-screen">
+        <AnimatePresence>
+          {isLoading && <LoadingScreen key="loader" />}
+        </AnimatePresence>
+
+        <Routes>
+          <Route path="/" element={<HomePage onJoinClick={() => setIsFormOpen(true)} />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/legacy" element={<LegacyPage />} />
+        </Routes>
+        
+        <AnimatePresence>
+          {isFormOpen && (
+            <MembershipForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
+          )}
+        </AnimatePresence>
+      </main>
+    </Router>
   );
 }

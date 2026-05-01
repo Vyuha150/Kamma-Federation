@@ -10,9 +10,10 @@ import LoadingScreen from './components/LoadingScreen';
 import AdminPanel from './components/AdminPanel';
 import LegacyPage from './components/LegacyPage';
 import HallOfFame from './components/HallOfFame';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AdminLogin from './components/AdminLogin';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function HomePage({ onJoinClick }: { onJoinClick: () => void }) {
   return (
@@ -27,6 +28,14 @@ function HomePage({ onJoinClick }: { onJoinClick: () => void }) {
     </>
   );
 }
+
+const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem('adminToken');
+  if (!token) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return <>{children}</>;
+};
 
 export default function App() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -48,11 +57,16 @@ export default function App() {
 
         <Routes>
           <Route path="/" element={<HomePage onJoinClick={() => setIsFormOpen(true)} />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={
+            <ProtectedAdminRoute>
+              <AdminPanel />
+            </ProtectedAdminRoute>
+          } />
           <Route path="/legacy" element={<LegacyPage />} />
           <Route path="/hall-of-fame" element={<HallOfFame />} />
         </Routes>
-        
+
         <AnimatePresence>
           {isFormOpen && (
             <MembershipForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />

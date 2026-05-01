@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Trophy, 
-  Crown, 
-  Users, 
-  Film, 
-  Briefcase, 
+import {
+  Trophy,
+  Crown,
+  Users,
+  Film,
+  Briefcase,
   ChevronRight,
   Search,
   ExternalLink,
@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import { API_URL } from '../config';
 
 interface Leader {
+  _id: string;
   name: string;
   category: 'History' | 'Politics' | 'Cinema' | 'Business';
   role: string;
@@ -24,122 +26,19 @@ interface Leader {
   image: string;
 }
 
-const leaders: Leader[] = [
-  // Historical & Pre-Modern
-  {
-    name: "Pemmasani Ramalinga Nayudu",
-    category: "History",
-    role: "Military Commander",
-    desc: "A distinguished military commander of the Vijayanagara Empire, he represented the early emergence of Kamma leadership in warfare and governance. He played a crucial role in defending imperial territories.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1599707334706-ec47082305aa?q=80&w=2036&auto=format&fit=crop"
-  },
-  {
-    name: "Vasireddy Venkatadri Nayudu",
-    category: "History",
-    role: "Zamindar of Amaravati",
-    desc: "Transformed the Amaravati region into a center of prosperity through irrigation development and temple construction. His legacy is associated with administrative excellence.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1548013146-72479768bbaa?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    name: "Tripuraneni Ramaswamy",
-    category: "History",
-    role: "Social Reformer & Writer",
-    desc: "A pioneering social reformer and writer who challenged rigid social structures and promoted rationalism in early 20th-century Andhra.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop"
-  },
-  // Politics
-  {
-    name: "N. T. Rama Rao",
-    category: "Politics",
-    role: "Founder, TDP",
-    desc: "A legendary figure who redefined regional political identity in Andhra Pradesh. His governance emphasized self-respect and welfare policies.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1517732359159-40d783114de0?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    name: "N. Chandrababu Naidu",
-    category: "Politics",
-    role: "Former CM, Andhra Pradesh",
-    desc: "Played a key role in transforming Hyderabad into a global IT hub. His focus on infrastructure and technology positioned Andhra Pradesh as a modernizing state.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    name: "N. G. Ranga",
-    category: "Politics",
-    role: "Freedom Fighter",
-    desc: "One of India's longest-serving parliamentarians and a tireless advocate for farmers' rights and rural development.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2000&auto=format&fit=crop"
-  },
-  // Cinema
-  {
-    name: "Nandamuri Balakrishna",
-    category: "Cinema",
-    role: "Legendary Actor",
-    desc: "A prominent actor and public figure, carrying forward the legacy of NTR through both cinema and regional political engagement.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=2059&auto=format&fit=crop"
-  },
-  {
-    name: "Jr NTR",
-    category: "Cinema",
-    role: "Global Star",
-    desc: "One of the most globally recognized Telugu actors, known for powerful performances and international reach. Represents the new generation with a strong cultural footprint.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1925&auto=format&fit=crop"
-  },
-  {
-    name: "Ghattamaneni Krishna",
-    category: "Cinema",
-    role: "Pioneering Actor",
-    desc: "Introduced several technological innovations to Telugu cinema. An experimental filmmaker and actor who influenced generations.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    name: "Mahesh Babu",
-    category: "Cinema",
-    role: "Contemporary Icon",
-    desc: "Leading actor known for consistent box-office success and pan-India appeal. Combines commercial cinema with social messaging.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1533928198648-d055e03295fe?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    name: "D. Ramanaidu",
-    category: "Cinema",
-    role: "Legendary Producer",
-    desc: "Founder of Suresh Productions, holding a Guinness World Record for producing films in the highest number of languages.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1535016120720-40c646bebb94?q=80&w=2070&auto=format&fit=crop"
-  },
-  // Business
-  {
-    name: "Mullapudi Harishchandra Prasad",
-    category: "Business",
-    role: "Industrialist",
-    desc: "Key leader of the Andhra Sugars group, played a significant role in advancing industrialization and agro-based manufacturing.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop"
-  },
-  {
-    name: "Ramoji Rao",
-    category: "Business",
-    role: "Media Tycoon",
-    desc: "Founder of the Ramoji Group, built one of India's largest media networks, Eenadu, and the iconic Ramoji Film City.",
-    verified: true,
-    image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=2070&auto=format&fit=crop"
-  }
-];
-
 export default function HallOfFame() {
+  const [leaders, setLeaders] = useState<Leader[]>([]);
   const [filter, setFilter] = useState<'All' | 'History' | 'Politics' | 'Cinema' | 'Business'>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredLeaders = leaders.filter(l => 
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/hof`)
+      .then(res => res.json())
+      .then(data => setLeaders(data))
+      .catch(err => console.error("Failed fetching leaders", err));
+  }, []);
+
+  const filteredLeaders = leaders.filter(l =>
     (filter === 'All' || l.category === filter) &&
     (l.name.toLowerCase().includes(searchQuery.toLowerCase()) || l.role.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -154,7 +53,7 @@ export default function HallOfFame() {
 
   return (
     <div className="min-h-screen bg-[#050505] selection:bg-amber-500 selection:text-black pt-20">
-      <Navbar onJoinClick={() => {}} />
+      <Navbar onJoinClick={() => { }} />
 
       {/* Hero Section */}
       <section className="relative py-24 sm:py-32 overflow-hidden">
@@ -168,8 +67,8 @@ export default function HallOfFame() {
             <Star size={16} className="text-amber-500 fill-amber-500" />
             <span className="text-xs font-black uppercase tracking-widest text-amber-500">Excellence & Vision</span>
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-6xl sm:text-7xl lg:text-9xl font-black text-white leading-[0.8] tracking-tighter italic uppercase mb-12"
@@ -206,9 +105,9 @@ export default function HallOfFame() {
 
             <div className="relative w-full lg:w-96">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input 
-                type="text" 
-                placeholder="Search Legends..." 
+              <input
+                type="text"
+                placeholder="Search Legends..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-6 py-4 text-sm text-white focus:border-amber-500 outline-none transition-all placeholder:text-gray-600"
@@ -234,13 +133,13 @@ export default function HallOfFame() {
                   className="group bg-[#0A0A0A] border border-white/5 rounded-[2rem] overflow-hidden hover:border-amber-500/30 transition-all flex flex-col h-full"
                 >
                   <div className="aspect-[4/5] relative overflow-hidden">
-                    <img 
-                      src={leader.image} 
-                      alt={leader.name} 
+                    <img
+                      src={leader.image?.startsWith('/uploads') ? `${API_URL}${leader.image}` : leader.image}
+                      alt={leader.name}
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/20 to-transparent" />
-                    
+
                     <div className="absolute top-6 left-6 flex items-center space-x-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
                       <ShieldCheck size={12} className="text-amber-500" />
                       <span className="text-[10px] font-black uppercase tracking-widest text-white">Verified Legacy</span>
@@ -258,7 +157,7 @@ export default function HallOfFame() {
                     <p className="text-gray-500 text-sm leading-relaxed mb-6">
                       {leader.desc}
                     </p>
-                    
+
                     <div className="flex items-center justify-between pt-6 border-t border-white/5">
                       <div className="flex items-center space-x-2">
                         <div className={`w-2 h-2 rounded-full bg-amber-500 animate-pulse`} />

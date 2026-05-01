@@ -1,31 +1,18 @@
 import { motion } from 'motion/react';
-import { Calendar, MapPin, Users, Ticket } from 'lucide-react';
-
-const upcomingEvents = [
-  {
-    title: 'UKSF Annual Vision Summit',
-    date: 'OCT 12, 2026',
-    location: 'HYDERABAD CONVENTION',
-    type: 'Conference',
-    image: 'https://images.unsplash.com/photo-1505373633562-22894d9146c4?q=80&w=2070&auto=format&fit=crop',
-  },
-  {
-    title: 'Seed Funding & Ventures Workshop',
-    date: 'NOV 05, 2026',
-    location: 'TECH HUB, VIZAG',
-    type: 'Workshop',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop',
-  },
-  {
-    title: 'Youth Leadership & Power Bootcamp',
-    date: 'DEC 15, 2026',
-    location: 'CHENNAI CENTER',
-    type: 'Bootcamp',
-    image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop',
-  },
-];
+import { Calendar, MapPin, Ticket } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 
 export default function Events() {
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/events`)
+      .then(res => res.json())
+      .then(data => setUpcomingEvents(data))
+      .catch(err => console.error("Failed fetching events", err));
+  }, []);
+
   return (
     <section id="events" className="py-32 bg-[#0A0A0A] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -44,7 +31,7 @@ export default function Events() {
         <div className="grid lg:grid-cols-3 gap-8">
           {upcomingEvents.map((event, idx) => (
             <motion.div
-              key={event.title}
+              key={event._id || event.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
@@ -52,10 +39,10 @@ export default function Events() {
               className="group cursor-pointer"
             >
               <div className="relative aspect-video rounded-3xl overflow-hidden mb-6">
-                <img 
-                  src={event.image} 
-                  alt={event.title} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                <img
+                  src={event.image?.startsWith('/uploads') ? `${API_URL}${event.image}` : event.image}
+                  alt={event.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute top-4 left-4">
@@ -79,7 +66,7 @@ export default function Events() {
                 <h3 className="text-2xl font-bold text-white uppercase leading-tight mb-6 group-hover:text-amber-500 transition-colors">
                   {event.title}
                 </h3>
-                
+
                 <button className="flex items-center space-x-2 text-white font-bold uppercase text-xs tracking-widest group-hover:translate-x-2 transition-transform">
                   <Ticket className="w-4 h-4 text-amber-500" />
                   <span>Reserve Spot</span>
@@ -88,6 +75,10 @@ export default function Events() {
             </motion.div>
           ))}
         </div>
+
+        {upcomingEvents.length === 0 && (
+          <div className="text-center py-20 text-gray-500 italic">No upcoming events scheduled.</div>
+        )}
       </div>
     </section>
   );

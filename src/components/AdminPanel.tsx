@@ -13,9 +13,14 @@ import {
   Bell,
   User,
   ExternalLink,
-  Menu
+  Menu,
+  ShieldAlert,
+  Trophy,
+  Building
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import AdminUserManagement from './AdminUserManagement';
+import AdminContentManagement from './AdminContentManagement';
 
 // Type definitions for our entities
 interface Event {
@@ -36,7 +41,8 @@ interface Submission {
 }
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'events' | 'submissions' | 'operations'>('dashboard');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'events' | 'submissions' | 'operations' | 'admins' | 'hof' | 'clubs'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Mock data for initial UI
@@ -84,8 +90,11 @@ export default function AdminPanel() {
         <nav className="flex-1 px-4 space-y-2">
           {[
             { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
+            { id: 'hof', label: 'Hall of Fame', icon: Trophy },
             { id: 'events', label: 'Events', icon: Calendar },
+            { id: 'clubs', label: 'Elite Clubs', icon: Building },
             { id: 'submissions', label: 'Applications', icon: Users },
+            { id: 'admins', label: 'Admins', icon: ShieldAlert },
             { id: 'operations', label: 'Operations', icon: Settings },
           ].map((item) => {
             const Icon = item.icon;
@@ -103,8 +112,19 @@ export default function AdminPanel() {
         </nav>
 
         <div className="p-4 border-t border-white/5 mb-8">
-          <Link to="/" className="w-full flex items-center space-x-3 px-4 py-3 text-gray-500 hover:text-white rounded-xl transition-all">
+          <button
+            onClick={() => {
+              localStorage.removeItem('adminToken');
+              localStorage.removeItem('adminUser');
+              navigate('/admin/login');
+            }}
+            className="w-full flex items-center space-x-3 px-4 py-3 text-gray-500 hover:text-white rounded-xl transition-all"
+          >
             <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+          <Link to="/" className="w-full flex items-center space-x-3 px-4 py-3 text-gray-500 hover:text-white rounded-xl transition-all mt-2">
+            <LogOut size={20} className="rotate-180" />
             <span>Return Site</span>
           </Link>
         </div>
@@ -217,62 +237,15 @@ export default function AdminPanel() {
         )}
 
         {activeTab === 'events' && (
-          <>
-            <Header title="Events Management" />
-            <div className="p-8">
-              <div className="flex justify-between items-center mb-8">
-                <p className="text-gray-500 text-sm">Schedule and manage UKSF flagship events.</p>
-                <button className="bg-amber-500 text-black px-6 py-3 rounded-xl font-black uppercase text-xs tracking-widest flex items-center space-x-2 hover:bg-amber-400 transition-colors">
-                  <Plus size={16} />
-                  <span>New Event</span>
-                </button>
-              </div>
+          <AdminContentManagement type="events" />
+        )}
 
-              <div className="bg-zinc-900 border border-white/5 rounded-3xl overflow-x-auto custom-scrollbar">
-                <table className="w-full text-left min-w-[700px]">
-                  <thead className="bg-black/50 border-b border-white/5">
-                    <tr>
-                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Event Name</th>
-                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Location</th>
-                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Date</th>
-                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Type</th>
-                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {events.map((event) => (
-                      <tr key={event.id} className="hover:bg-white/5 transition-colors group">
-                        <td className="p-6">
-                          <p className="text-white font-bold uppercase tracking-tight">{event.title}</p>
-                        </td>
-                        <td className="p-6">
-                          <div className="flex items-center space-x-2 text-gray-500 text-xs uppercase tracking-widest">
-                            <span>{event.location}</span>
-                          </div>
-                        </td>
-                        <td className="p-6 text-gray-500 text-xs font-mono">{event.date}</td>
-                        <td className="p-6">
-                          <span className="bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest">
-                            {event.type}
-                          </span>
-                        </td>
-                        <td className="p-6 text-right">
-                          <div className="flex items-center justify-end space-x-3">
-                            <button className="p-2 text-gray-600 hover:text-white transition-colors">
-                              <Edit2 size={16} />
-                            </button>
-                            <button className="p-2 text-gray-600 hover:text-red-500 transition-colors">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </>
+        {activeTab === 'hof' && (
+          <AdminContentManagement type="hof" />
+        )}
+
+        {activeTab === 'clubs' && (
+          <AdminContentManagement type="clubs" />
         )}
 
         {activeTab === 'submissions' && (
@@ -383,6 +356,13 @@ export default function AdminPanel() {
                 </div>
               </div>
             </div>
+          </>
+        )}
+
+        {activeTab === 'admins' && (
+          <>
+            <Header title="User Management" />
+            <AdminUserManagement />
           </>
         )}
       </main>

@@ -6,7 +6,7 @@ export default function LoadingScreen() {
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ 
+        transition={{
           duration: 1,
           ease: "easeOut"
         }}
@@ -14,20 +14,16 @@ export default function LoadingScreen() {
       >
         {/* Animated Glow Back */}
         <div className="absolute inset-0 bg-amber-500/20 blur-[60px] rounded-full animate-pulse" />
-        
+
         {/* Logo Container */}
         <div className="relative w-48 h-48 rounded-full border-4 border-amber-500/30 p-2 overflow-hidden bg-black shadow-[0_0_50px_rgba(245,158,11,0.2)]">
-          <img 
-            src="/input_file_0.png" 
-            alt="UKSF Logo" 
+          <img
+            src="/logo.jpg"
+            alt="UKSF Logo"
             className="w-full h-full object-contain"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              if (!target.src.includes('input_file_1.png')) {
-                target.src = '/input_file_1.png';
-              } else {
-                target.src = 'https://via.placeholder.com/200?text=UKSF';
-              }
+              target.src = 'https://via.placeholder.com/200?text=UKSF';
             }}
           />
         </div>

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Users, 
-  Settings, 
-  LogOut, 
-  Plus, 
-  Edit2, 
-  Trash2, 
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  Settings,
+  LogOut,
+  Plus,
+  Edit2,
+  Trash2,
   Search,
   Bell,
   User,
@@ -38,7 +38,7 @@ interface Submission {
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'events' | 'submissions' | 'operations'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   // Mock data for initial UI
   const [events, setEvents] = useState<Event[]>([
     { id: '1', title: 'UKSF Annual Vision Summit', date: '2026-10-12', location: 'Hyderabad', type: 'Conference' },
@@ -54,27 +54,23 @@ export default function AdminPanel() {
     <>
       {/* Mobile Backdrop */}
       {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] lg:hidden" 
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[50] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
-      
+
       <div className={`w-64 bg-zinc-950 border-r border-white/5 flex flex-col h-screen fixed left-0 top-0 pt-8 z-[60] transition-transform duration-300 lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="px-6 mb-12 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full p-1 overflow-hidden">
-              <img 
-                src="/input_file_0.png" 
-                alt="Logo" 
+              <img
+                src="/logo.jpg"
+                alt="Logo"
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (!target.src.includes('input_file_1.png')) {
-                    target.src = '/input_file_1.png';
-                  } else {
-                    target.src = 'https://via.placeholder.com/200?text=UKSF';
-                  }
+                  target.src = 'https://via.placeholder.com/200?text=UKSF';
                 }}
               />
             </div>
@@ -94,7 +90,7 @@ export default function AdminPanel() {
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <button 
+              <button
                 key={item.id}
                 onClick={() => { setActiveTab(item.id as any); setIsSidebarOpen(false); }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id ? 'bg-amber-500 text-black font-bold' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
@@ -119,7 +115,7 @@ export default function AdminPanel() {
   const Header = ({ title }: { title: string }) => (
     <div className="h-20 border-b border-white/5 flex items-center justify-between px-4 sm:px-8 bg-black/50 backdrop-blur-xl sticky top-0 z-40">
       <div className="flex items-center space-x-4">
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(true)}
           className="lg:hidden p-2 text-gray-500 hover:text-white"
         >
@@ -130,9 +126,9 @@ export default function AdminPanel() {
       <div className="flex items-center space-x-3 sm:space-x-6 text-gray-500">
         <div className="relative group hidden sm:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" />
-          <input 
-            type="text" 
-            placeholder="Search..." 
+          <input
+            type="text"
+            placeholder="Search..."
             className="bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2 text-xs text-white focus:border-amber-500 outline-none w-40 md:w-64 transition-all"
           />
         </div>
@@ -147,7 +143,7 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-[#050505] lg:pl-64 selection:bg-amber-500 selection:text-black">
       <Sidebar />
-      
+
       <main className="min-h-screen flex flex-col">
         {activeTab === 'dashboard' && (
           <>
@@ -183,9 +179,8 @@ export default function AdminPanel() {
                           <p className="text-white text-sm font-bold">{sub.name}</p>
                           <p className="text-gray-500 text-[10px] uppercase tracking-widest">{sub.club}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                          sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
+                          }`}>
                           {sub.status}
                         </span>
                       </div>
@@ -323,9 +318,8 @@ export default function AdminPanel() {
                         <td className="p-6 text-gray-400 text-xs uppercase font-bold tracking-widest">{sub.club}</td>
                         <td className="p-6 text-gray-500 text-xs font-mono">{sub.date}</td>
                         <td className="p-6">
-                          <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                            sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
-                          }`}>
+                          <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
+                            }`}>
                             {sub.status}
                           </span>
                         </td>

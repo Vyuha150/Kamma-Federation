@@ -22,18 +22,14 @@ export default function Navbar({ onJoinClick }: { onJoinClick: () => void }) {
         <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
             <div className="w-12 h-12 flex items-center justify-center overflow-hidden transition-transform group-hover:scale-110 bg-black/20 rounded-full p-1">
-              <img 
-                src="/input_file_0.png" 
-                alt="Logo" 
+              <img
+                src="/logo.jpg"
+                alt="Logo"
                 className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (!target.src.includes('input_file_1.png')) {
-                    target.src = '/input_file_1.png';
-                  } else {
-                    target.src = 'https://via.placeholder.com/200?text=UKSF';
-                  }
+                  target.src = 'https://via.placeholder.com/200?text=UKSF';
                 }}
               />
             </div>
@@ -64,16 +60,16 @@ export default function Navbar({ onJoinClick }: { onJoinClick: () => void }) {
                 </a>
               )
             ))}
-            
+
             <div className="flex items-center space-x-4 pl-4 border-l border-white/10">
-              <Link 
-                to="/admin" 
+              <Link
+                to="/admin"
                 className="text-gray-500 hover:text-amber-500 transition-colors"
                 title="Federation Admin Hub"
               >
                 <ShieldCheck className="w-5 h-5" />
               </Link>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -125,7 +121,7 @@ export default function Navbar({ onJoinClick }: { onJoinClick: () => void }) {
               </a>
             )
           ))}
-          <button 
+          <button
             onClick={() => { setIsOpen(false); onJoinClick(); }}
             className="w-full bg-amber-500 text-black px-6 py-3 rounded-xl font-bold text-lg uppercase tracking-wider mt-4"
           >

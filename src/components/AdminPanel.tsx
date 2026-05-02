@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import {
   LayoutDashboard,
@@ -16,11 +16,13 @@ import {
   Menu,
   ShieldAlert,
   Trophy,
-  Building
+  Building,
+  Mail
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import AdminUserManagement from './AdminUserManagement';
 import AdminContentManagement from './AdminContentManagement';
+import { useSessionTimeout } from '../hooks/useSessionTimeout';
 
 // Type definitions for our entities
 interface Event {
@@ -32,29 +34,89 @@ interface Event {
 }
 
 interface Submission {
-  id: string;
+  _id: string;
   name: string;
   email: string;
+  phone?: string;
+  education?: string;
+  semester?: string;
+  district?: string;
+  philosophy?: string;
+  failure?: string;
+  goal?: string;
+  interest?: string;
+  contribution?: string;
+  financial?: string;
   club: string;
   date: string;
   status: 'Pending' | 'Approved' | 'Rejected';
 }
 
+interface Subscriber {
+  _id: string;
+  email: string;
+  date: string;
+}
+
 export default function AdminPanel() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'events' | 'submissions' | 'operations' | 'admins' | 'hof' | 'clubs'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'events' | 'submissions' | 'subscribers' | 'operations' | 'admins' | 'hof' | 'clubs'>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Mock data for initial UI
-  const [events, setEvents] = useState<Event[]>([
-    { id: '1', title: 'UKSF Annual Vision Summit', date: '2026-10-12', location: 'Hyderabad', type: 'Conference' },
-    { id: '2', title: 'Seed Funding Workshop', date: '2026-11-05', location: 'Vizag', type: 'Workshop' },
-  ]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [reviewingSubmission, setReviewingSubmission] = useState<Submission | null>(null);
+  const [sessionWarning, setSessionWarning] = useState<number | null>(null); // seconds left
 
-  const [submissions, setSubmissions] = useState<Submission[]>([
-    { id: '1', name: 'Vikas Chowdary', email: 'vikas@gmail.com', club: 'Entrepreneurship', date: '2024-04-20', status: 'Pending' },
-    { id: '2', name: 'Ananya Rao', email: 'ananya@gmail.com', club: 'Student Innovation', date: '2024-04-21', status: 'Approved' },
-  ]);
+  const handleAutoLogout = useCallback(() => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/admin/login');
+  }, [navigate]);
+
+  const handleWarn = useCallback((secondsLeft: number) => {
+    setSessionWarning(secondsLeft);
+  }, []);
+
+  useSessionTimeout(handleAutoLogout, handleWarn);
+
+  const API_BASE = 'http://localhost:3005';
+
+  const updateSubmissionStatus = async (id: string, status: 'Approved' | 'Rejected') => {
+    const token = localStorage.getItem('adminToken');
+    const res = await fetch(`${API_BASE}/api/content/submissions/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      setSubmissions(prev => prev.map(s => s._id === id ? { ...s, status } : s));
+      if (reviewingSubmission?._id === id) setReviewingSubmission(prev => prev ? { ...prev, status } : null);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('adminToken');
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        const [evRes, subRes, subscrRes] = await Promise.all([
+          fetch('http://localhost:3005/api/content/events', { headers }),
+          fetch('http://localhost:3005/api/content/submissions', { headers }),
+          fetch('http://localhost:3005/api/content/subscribers', { headers })
+        ]);
+
+        if (evRes.ok) setEvents(await evRes.json());
+        if (subRes.ok) setSubmissions(await subRes.json());
+        if (subscrRes.ok) setSubscribers(await subscrRes.json());
+      } catch (err) {
+        console.error('Failed to fetch dashboard data', err);
+      }
+    };
+    fetchData();
+  }, [activeTab]);
 
   const Sidebar = () => (
     <>
@@ -94,6 +156,7 @@ export default function AdminPanel() {
             { id: 'events', label: 'Events', icon: Calendar },
             { id: 'clubs', label: 'Elite Clubs', icon: Building },
             { id: 'submissions', label: 'Applications', icon: Users },
+            { id: 'subscribers', label: 'Subscribers', icon: Mail },
             { id: 'admins', label: 'Admins', icon: ShieldAlert },
             { id: 'operations', label: 'Operations', icon: Settings },
           ].map((item) => {
@@ -164,6 +227,23 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-[#050505] lg:pl-64 selection:bg-amber-500 selection:text-black">
       <Sidebar />
 
+      {/* Session Timeout Warning Banner */}
+      {sessionWarning !== null && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-zinc-900 border border-amber-500/50 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-4 backdrop-blur-xl">
+          <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+          <p className="text-sm font-bold">
+            Session expiring in{' '}
+            <span className="text-amber-500 font-black">{sessionWarning}s</span>
+          </p>
+          <button
+            onClick={() => { setSessionWarning(null); }}
+            className="ml-2 text-xs bg-amber-500 text-black px-3 py-1 rounded-lg font-black uppercase tracking-widest hover:bg-amber-400 transition-colors"
+          >
+            Stay Logged In
+          </button>
+        </div>
+      )}
+
       <main className="min-h-screen flex flex-col">
         {activeTab === 'dashboard' && (
           <>
@@ -171,9 +251,9 @@ export default function AdminPanel() {
             <div className="p-4 sm:p-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
                 {[
-                  { label: 'Total Members', value: '5,420', trend: '+12% this month' },
-                  { label: 'Active Events', value: '08', trend: 'Next: Oct 12' },
-                  { label: 'Unread Applications', value: '142', trend: 'Needs Review' },
+                  { label: 'Total Members', value: submissions.length, trend: 'Applications Received' },
+                  { label: 'Active Events', value: events.length, trend: 'Scheduled' },
+                  { label: 'Newsletter', value: subscribers.length, trend: 'Subscribers' },
                 ].map((stat, i) => (
                   <div key={i} className="bg-zinc-900 border border-white/5 p-8 rounded-3xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -193,8 +273,8 @@ export default function AdminPanel() {
                     <button onClick={() => setActiveTab('submissions')} className="text-amber-500 text-[10px] uppercase font-bold tracking-widest hover:underline">View All</button>
                   </div>
                   <div className="space-y-4">
-                    {submissions.map(sub => (
-                      <div key={sub.id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5">
+                    {submissions.slice(0, 5).map(sub => (
+                      <div key={sub._id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5">
                         <div>
                           <p className="text-white text-sm font-bold">{sub.name}</p>
                           <p className="text-gray-500 text-[10px] uppercase tracking-widest">{sub.club}</p>
@@ -214,12 +294,11 @@ export default function AdminPanel() {
                     <button onClick={() => setActiveTab('events')} className="text-amber-500 text-[10px] uppercase font-bold tracking-widest hover:underline">Manage</button>
                   </div>
                   <div className="space-y-4">
-                    {events.map(event => (
-                      <div key={event.id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5 text-xs">
+                    {events.slice(0, 5).map(event => (
+                      <div key={event.id || (event as any)._id} className="flex items-center justify-between p-4 bg-black/30 rounded-2xl border border-white/5 text-xs">
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex flex-col items-center justify-center border border-amber-500/20">
-                            <span className="text-amber-500 font-bold text-[10px] leading-none uppercase">Oct</span>
-                            <span className="text-amber-500 font-black text-lg leading-none uppercase">12</span>
+                            <span className="text-amber-500 font-bold text-[10px] leading-none uppercase">...</span>
                           </div>
                           <div>
                             <p className="text-white font-bold">{event.title}</p>
@@ -276,7 +355,7 @@ export default function AdminPanel() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {submissions.map((sub) => (
-                      <tr key={sub.id} className="hover:bg-white/5 transition-colors group">
+                      <tr key={sub._id} className="hover:bg-white/5 transition-colors group">
                         <td className="p-6">
                           <div className="flex items-center space-x-4">
                             <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-white font-black text-xs uppercase italic">
@@ -289,7 +368,7 @@ export default function AdminPanel() {
                           </div>
                         </td>
                         <td className="p-6 text-gray-400 text-xs uppercase font-bold tracking-widest">{sub.club}</td>
-                        <td className="p-6 text-gray-500 text-xs font-mono">{sub.date}</td>
+                        <td className="p-6 text-gray-500 text-xs font-mono">{new Date(sub.date).toLocaleDateString()}</td>
                         <td className="p-6">
                           <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'
                             }`}>
@@ -298,13 +377,138 @@ export default function AdminPanel() {
                         </td>
                         <td className="p-6 text-right">
                           <div className="flex items-center justify-end space-x-3">
-                            <button className="bg-white/5 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all">
+                            <button onClick={() => setReviewingSubmission(sub)} className="bg-white/5 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all">
                               Review
                             </button>
-                            <button className="p-2 text-gray-600 hover:text-red-500 transition-colors">
+                            <button onClick={async () => {
+                              if (!confirm('Delete this submission?')) return;
+                              await fetch(`http://localhost:3005/api/content/submissions/${sub._id}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                              });
+                              setSubmissions(submissions.filter(s => s._id !== sub._id));
+                            }} className="p-2 text-gray-600 hover:text-red-500 transition-colors">
                               <Trash2 size={16} />
                             </button>
                           </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Review Modal */}
+        {reviewingSubmission && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between p-8 border-b border-white/5">
+                <div>
+                  <h2 className="text-white font-black uppercase tracking-tight italic text-xl">{reviewingSubmission.name}</h2>
+                  <p className="text-amber-500 text-[10px] font-bold uppercase tracking-widest mt-1">{reviewingSubmission.club}</p>
+                </div>
+                <button onClick={() => setReviewingSubmission(null)} className="text-gray-500 hover:text-white w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl">&times;</button>
+              </div>
+              {/* Body */}
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: 'Email', value: reviewingSubmission.email },
+                    { label: 'Phone', value: reviewingSubmission.phone },
+                    { label: 'Education', value: reviewingSubmission.education },
+                    { label: 'Year / Semester', value: reviewingSubmission.semester },
+                    { label: 'Native District', value: reviewingSubmission.district },
+                    { label: 'Financial Status', value: reviewingSubmission.financial },
+                    { label: 'Interest Area', value: reviewingSubmission.interest },
+                    { label: 'Applied On', value: new Date(reviewingSubmission.date).toLocaleString() },
+                  ].map(({ label, value }) => value ? (
+                    <div key={label} className="bg-black/30 border border-white/5 rounded-2xl p-4">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">{label}</p>
+                      <p className="text-white text-sm">{value}</p>
+                    </div>
+                  ) : null)}
+                </div>
+                {reviewingSubmission.philosophy && (
+                  <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Philosophy</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">{reviewingSubmission.philosophy}</p>
+                  </div>
+                )}
+                {reviewingSubmission.goal && (
+                  <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">3-Year Goal</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">{reviewingSubmission.goal}</p>
+                  </div>
+                )}
+                {reviewingSubmission.failure && (
+                  <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Biggest Failure & Lesson</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">{reviewingSubmission.failure}</p>
+                  </div>
+                )}
+                {reviewingSubmission.contribution && (
+                  <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">How Federation Can Serve</p>
+                    <p className="text-gray-300 text-sm leading-relaxed">{reviewingSubmission.contribution}</p>
+                  </div>
+                )}
+              </div>
+              {/* Actions */}
+              <div className="p-8 border-t border-white/5 flex items-center justify-between">
+                <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${reviewingSubmission.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500' :
+                  reviewingSubmission.status === 'Rejected' ? 'bg-red-500/10 text-red-500' :
+                    'bg-amber-500/10 text-amber-500'
+                  }`}>{reviewingSubmission.status}</span>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => { updateSubmissionStatus(reviewingSubmission._id, 'Rejected'); }}
+                    disabled={reviewingSubmission.status === 'Rejected'}
+                    className="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >Reject</button>
+                  <button
+                    onClick={() => { updateSubmissionStatus(reviewingSubmission._id, 'Approved'); }}
+                    disabled={reviewingSubmission.status === 'Approved'}
+                    className="px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-emerald-500 text-black hover:bg-emerald-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >Approve</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'subscribers' && (
+          <>
+            <Header title="Newsletter Subscribers" />
+            <div className="p-8">
+              <div className="bg-zinc-900 border border-white/5 rounded-3xl overflow-x-auto custom-scrollbar">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead className="bg-black/50 border-b border-white/5">
+                    <tr>
+                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email</th>
+                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Date Subscribed</th>
+                      <th className="p-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {subscribers.map((sub) => (
+                      <tr key={sub._id} className="hover:bg-white/5 transition-colors group">
+                        <td className="p-6 text-white text-sm font-bold">{sub.email}</td>
+                        <td className="p-6 text-gray-500 text-xs font-mono">{new Date(sub.date).toLocaleDateString()}</td>
+                        <td className="p-6 text-right">
+                          <button onClick={async () => {
+                            if (!confirm('Delete this subscriber?')) return;
+                            await fetch(`http://localhost:3005/api/content/subscribers/${sub._id}`, {
+                              method: 'DELETE',
+                              headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+                            });
+                            setSubscribers(subscribers.filter(s => s._id !== sub._id));
+                          }} className="p-2 text-gray-600 hover:text-red-500 transition-colors">
+                            <Trash2 size={16} />
+                          </button>
                         </td>
                       </tr>
                     ))}

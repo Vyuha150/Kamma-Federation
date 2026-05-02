@@ -1,12 +1,29 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ChevronRight, ChevronLeft, Check, Target, Brain, Wallet, UserCircle, Rocket } from 'lucide-react';
+import { API_URL } from '../config';
 
 type FormStep = 'INTEREST' | 'PERSONAL' | 'PSYCHOGRAPHIC' | 'GOALS' | 'FINANCIAL' | 'SUCCESS';
 
 export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [step, setStep] = useState<FormStep>('INTEREST');
   const [selectedClub, setSelectedClub] = useState<string>('');
+
+  // Form details
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [education, setEducation] = useState('');
+  const [semester, setSemester] = useState('Year 1');
+  const [district, setDistrict] = useState('');
+  const [philosophy, setPhilosophy] = useState('');
+  const [failure, setFailure] = useState('');
+  const [goal, setGoal] = useState('');
+  const [interest, setInterest] = useState('');
+  const [contribution, setContribution] = useState('');
+  const [financial, setFinancial] = useState('Requiring Full Scholarship/Support');
+
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -22,15 +39,37 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
     if (prevIndex >= 0) setStep(steps[prevIndex]);
   };
 
+  const submitApplication = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/content/submissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name, phone, email, education, semester, district, philosophy, failure, goal, interest, contribution, financial, club: selectedClub
+        })
+      });
+      if (res.ok) {
+        nextStep('FINANCIAL');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const Progress = () => {
     const steps: FormStep[] = ['INTEREST', 'PERSONAL', 'PSYCHOGRAPHIC', 'GOALS', 'FINANCIAL'];
     const currentIdx = steps.indexOf(step as FormStep);
     return (
       <div className="flex space-x-2 mb-8">
         {steps.map((_, i) => (
-          <div 
-            key={i} 
-            className={`h-1 flex-1 rounded-full transition-colors ${i <= currentIdx ? 'bg-amber-500' : 'bg-white/10'}`} 
+          <div
+            key={i}
+            className={`h-1 flex-1 rounded-full transition-colors ${i <= currentIdx ? 'bg-amber-500' : 'bg-white/10'}`}
           />
         ))}
       </div>
@@ -38,22 +77,22 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <motion.div 
+    <div className="fixed inset-0 z-100 flex items-center justify-center px-4">
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/90 backdrop-blur-xl" 
+        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
       />
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative w-full max-w-2xl bg-[#0A0A0A] border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden"
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors p-2 z-20"
         >
@@ -79,13 +118,11 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                     <button
                       key={club}
                       onClick={() => setSelectedClub(club)}
-                      className={`p-6 rounded-2xl border transition-all text-left group ${
-                        selectedClub === club ? 'border-amber-500 bg-amber-500/5' : 'border-white/5 bg-white/5 hover:border-white/20'
-                      }`}
+                      className={`p-6 rounded-2xl border transition-all text-left group ${selectedClub === club ? 'border-amber-500 bg-amber-500/5' : 'border-white/5 bg-white/5 hover:border-white/20'
+                        }`}
                     >
-                      <div className={`w-10 h-10 rounded-xl mb-4 flex items-center justify-center transition-colors ${
-                        selectedClub === club ? 'bg-amber-500 text-black' : 'bg-white/5 text-gray-500'
-                      }`}>
+                      <div className={`w-10 h-10 rounded-xl mb-4 flex items-center justify-center transition-colors ${selectedClub === club ? 'bg-amber-500 text-black' : 'bg-white/5 text-gray-500'
+                        }`}>
                         {club === 'Entrepreneurship' && <Rocket className="w-5 h-5" />}
                         {club === 'Leadership & Politics' && <Target className="w-5 h-5" />}
                         {club === 'Student Innovation' && <Brain className="w-5 h-5" />}
@@ -96,7 +133,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                     </button>
                   ))}
                 </div>
-                <button 
+                <button
                   disabled={!selectedClub}
                   onClick={() => nextStep('INTEREST')}
                   className="w-full bg-amber-500 disabled:opacity-50 text-black py-5 rounded-2xl font-black uppercase text-sm tracking-widest shadow-xl flex items-center justify-center space-x-2"
@@ -124,21 +161,25 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Full Name</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="Vikas Chowdary" />
+                      <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="Vikas Chowdary" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Phone Number</label>
-                      <input type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="+91 00000 00000" />
+                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="+91 00000 00000" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Email Address</label>
+                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="you@example.com" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Educational Institution</label>
-                    <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="IIT Hyderabad / BITS Pilani / etc." />
+                    <input type="text" value={education} onChange={e => setEducation(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="IIT Hyderabad / BITS Pilani / etc." />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Current Semester/Year</label>
-                      <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors appearance-none">
+                      <select value={semester} onChange={e => setSemester(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors appearance-none">
                         <option>Year 1</option>
                         <option>Year 2</option>
                         <option>Year 3</option>
@@ -148,7 +189,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Native District</label>
-                      <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="e.g., Guntur, Krishna" />
+                      <input type="text" value={district} onChange={e => setDistrict(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="e.g., Guntur, Krishna" />
                     </div>
                   </div>
                 </div>
@@ -188,7 +229,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                         "I want to lead the community through governance.",
                         "I am here to learn and contribute to something bigger."
                       ].map((option, i) => (
-                        <button key={i} className="w-full text-left p-4 rounded-xl border border-white/5 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all text-sm text-gray-300">
+                        <button key={i} onClick={() => setPhilosophy(option)} className={`w-full text-left p-4 rounded-xl border transition-all text-sm ${philosophy === option ? 'border-amber-500 bg-amber-500/10 text-white' : 'border-white/5 bg-white/5 hover:border-amber-500/50 hover:bg-amber-500/5 text-gray-300'}`}>
                           {option}
                         </button>
                       ))}
@@ -196,7 +237,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">What is your biggest failure so far and what did it teach you?</label>
-                    <textarea rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors resize-none" placeholder="Your depth of thought determines your placement." />
+                    <textarea value={failure} onChange={e => setFailure(e.target.value)} rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors resize-none" placeholder="Your depth of thought determines your placement." />
                   </div>
                 </div>
                 <div className="flex space-x-4">
@@ -228,13 +269,13 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                 <div className="space-y-6 mb-10">
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">3-Year Professional Goal</label>
-                    <input type="text" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="e.g., Founding a Series A startup" />
+                    <input type="text" value={goal} onChange={e => setGoal(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors" placeholder="e.g., Founding a Series A startup" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Primary Interest Area</label>
                     <div className="flex flex-wrap gap-2">
                       {['Scalable Business', 'Policy Making', 'Deep Tech', 'Strategic Networking', 'Social Equity'].map((tag) => (
-                        <button key={tag} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold uppercase text-gray-400 hover:border-amber-500 hover:text-white transition-all">
+                        <button key={tag} onClick={() => setInterest(tag)} className={`px-4 py-2 rounded-lg border text-[10px] font-bold uppercase transition-all ${interest === tag ? 'bg-amber-500 border-amber-500 text-black' : 'bg-white/5 border-white/10 text-gray-400 hover:border-amber-500 hover:text-white'}`}>
                           {tag}
                         </button>
                       ))}
@@ -242,7 +283,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">How can the Federation best serve you?</label>
-                    <textarea rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors resize-none" placeholder="We optimize our resources based on your needs." />
+                    <textarea value={contribution} onChange={e => setContribution(e.target.value)} rows={2} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors resize-none" placeholder="We optimize our resources based on your needs." />
                   </div>
                 </div>
                 <div className="flex space-x-4">
@@ -277,7 +318,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                 <div className="space-y-8 mb-10">
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Financial Situation Statement</label>
-                    <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors appearance-none">
+                    <select value={financial} onChange={e => setFinancial(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:border-amber-500 outline-none transition-colors appearance-none">
                       <option>Requiring Full Scholarship/Support</option>
                       <option>Self-Sufficient / Looking for Network</option>
                       <option>Ready to Invest / Angel Background</option>
@@ -296,9 +337,9 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                     <ChevronLeft className="w-4 h-4" />
                     <span>Back</span>
                   </button>
-                  <button onClick={() => nextStep('FINANCIAL')} className="flex-1 bg-amber-500 text-black py-5 rounded-2xl font-black uppercase text-sm tracking-widest shadow-xl flex items-center justify-center space-x-2">
+                  <button disabled={loading} onClick={submitApplication} className="flex-1 bg-amber-500 text-black py-5 rounded-2xl font-black uppercase text-sm tracking-widest shadow-xl flex items-center justify-center space-x-2 disabled:opacity-50">
                     <Check className="w-5 h-5" />
-                    <span>Finalize Application</span>
+                    <span>{loading ? 'Submitting...' : 'Finalize Application'}</span>
                   </button>
                 </div>
               </motion.div>
@@ -319,7 +360,7 @@ export default function MembershipForm({ isOpen, onClose }: { isOpen: boolean; o
                 <p className="text-gray-400 text-lg mb-12 max-w-sm mx-auto leading-relaxed">
                   Your profile is now being reviewed by the Federation's Council. You will receive a verification link once approved.
                 </p>
-                <button 
+                <button
                   onClick={onClose}
                   className="bg-white text-black px-12 py-5 rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-gray-100 transition-all shadow-2xl"
                 >

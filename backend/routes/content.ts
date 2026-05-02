@@ -5,6 +5,8 @@ import fs from 'fs';
 import HallOfFame from '../models/HallOfFame.js';
 import Event from '../models/Event.js';
 import Club from '../models/Club.js';
+import Subscriber from '../models/Subscriber.js';
+import Submission from '../models/Submission.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -153,6 +155,74 @@ router.delete('/clubs/:id', authenticate, async (req, res) => {
         res.json({ message: 'Deleted' });
     } catch (err) {
         res.status(500).json({ message: 'Error deleting' });
+    }
+});
+
+// ---- SUBSCRIBERS ----
+router.get('/subscribers', authenticate, async (req, res) => {
+    try {
+        const items = await Subscriber.find().sort({ date: -1 });
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching subscribers' });
+    }
+});
+
+router.post('/subscribers', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const item = new Subscriber({ email });
+        await item.save();
+        res.status(201).json(item);
+    } catch (err) {
+        res.status(500).json({ message: 'Error creating subscriber' });
+    }
+});
+
+router.delete('/subscribers/:id', authenticate, async (req, res) => {
+    try {
+        await Subscriber.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting subscriber' });
+    }
+});
+
+// ---- SUBMISSIONS ----
+router.get('/submissions', authenticate, async (req, res) => {
+    try {
+        const items = await Submission.find().sort({ date: -1 });
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching submissions' });
+    }
+});
+
+router.post('/submissions', async (req, res) => {
+    try {
+        const item = new Submission(req.body);
+        await item.save();
+        res.status(201).json(item);
+    } catch (err) {
+        res.status(500).json({ message: 'Error creating submission' });
+    }
+});
+
+router.put('/submissions/:id/status', authenticate, async (req, res) => {
+    try {
+        const item = await Submission.findByIdAndUpdate(req.params.id, { status: req.body.status }, { new: true });
+        res.json(item);
+    } catch (err) {
+        res.status(500).json({ message: 'Error updating submission' });
+    }
+});
+
+router.delete('/submissions/:id', authenticate, async (req, res) => {
+    try {
+        await Submission.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Deleted' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error deleting submission' });
     }
 });
 

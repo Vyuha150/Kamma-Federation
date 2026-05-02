@@ -1,8 +1,30 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Linkedin, Facebook, Instagram, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    try {
+      const res = await fetch(`${API_URL}/api/content/subscribers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (res.ok) {
+        setSubscribed(true);
+        setEmail('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <footer className="bg-[#050505] pt-24 pb-12 relative border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,16 +85,24 @@ export default function Footer() {
           <div id="join">
             <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-8">Join Movement</h4>
             <p className="text-gray-500 text-sm mb-6">Stay updated with our latest vision releases.</p>
-            <div className="bg-zinc-900 border border-white/10 p-2 rounded-2xl flex">
-              <input 
-                type="email" 
-                placeholder="EMAIL ADDRESS" 
-                className="bg-transparent border-none text-white text-xs px-4 w-full focus:ring-0 font-bold uppercase" 
-              />
-              <button className="bg-amber-500 text-black px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-400 transition-colors shrink-0">
-                Subscribe
-              </button>
-            </div>
+            {subscribed ? (
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-3 rounded-2xl text-xs font-bold uppercase text-center">
+                Subscribed Successfully!
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="bg-zinc-900 border border-white/10 p-2 rounded-2xl flex">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="EMAIL ADDRESS"
+                  className="bg-transparent border-none text-white text-xs px-4 w-full focus:ring-0 font-bold uppercase outline-none"
+                />
+                <button type="submit" className="bg-amber-500 text-black px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-400 transition-colors shrink-0">
+                  Subscribe
+                </button>
+              </form>
+            )}
           </div>
         </div>
 
